@@ -1053,13 +1053,13 @@ fn test_get_sub_devices_for_a_unknown_device() {
     assert!(devices.is_empty());
 }
 
-// get_device_uid
+// get_device_global_uid
 // ------------------------------------
 #[test]
-fn test_get_device_uid() {
+fn test_get_device_global_uid() {
     // Input device.
     if let Some(input) = test_get_default_device(Scope::Input) {
-        let uid = get_device_uid(input).unwrap();
+        let uid = get_device_global_uid(input).unwrap();
         unsafe {
             CFRelease(uid as *const c_void);
         }
@@ -1067,7 +1067,35 @@ fn test_get_device_uid() {
 
     // Output device.
     if let Some(output) = test_get_default_device(Scope::Output) {
-        let uid = get_device_uid(output).unwrap();
+        let uid = get_device_global_uid(output).unwrap();
+        unsafe {
+            CFRelease(uid as *const c_void);
+        }
+    }
+}
+
+#[test]
+#[should_panic]
+fn test_get_device_global_uid_by_unknwon_device() {
+    // Unknown device.
+    assert!(get_device_global_uid(kAudioObjectUnknown).is_err());
+}
+
+// get_device_uid
+// ------------------------------------
+#[test]
+fn test_get_device_uid() {
+    // Input device.
+    if let Some(input) = test_get_default_device(Scope::Input) {
+        let uid = get_device_uid(input, DeviceType::INPUT).unwrap();
+        unsafe {
+            CFRelease(uid as *const c_void);
+        }
+    }
+
+    // Output device.
+    if let Some(output) = test_get_default_device(Scope::Output) {
+        let uid = get_device_uid(output, DeviceType::OUTPUT).unwrap();
         unsafe {
             CFRelease(uid as *const c_void);
         }
@@ -1078,7 +1106,7 @@ fn test_get_device_uid() {
 #[should_panic]
 fn test_get_device_uid_by_unknwon_device() {
     // Unknown device.
-    assert!(get_device_uid(kAudioObjectUnknown).is_err());
+    assert!(get_device_uid(kAudioObjectUnknown, DeviceType::INPUT).is_err());
 }
 
 // AggregateDevice::set_sub_devices
