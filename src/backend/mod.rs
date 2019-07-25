@@ -1632,13 +1632,17 @@ fn audiounit_get_available_samplerate(
     }
 }
 
-fn audiounit_get_device_presentation_latency(
-    devid: AudioObjectID,
-    scope: AudioObjectPropertyScope,
-) -> u32 {
+fn audiounit_get_device_presentation_latency(devid: AudioObjectID, devtype: DeviceType) -> u32 {
+    const GLOBAL: ffi::cubeb_device_type =
+        ffi::CUBEB_DEVICE_TYPE_INPUT | ffi::CUBEB_DEVICE_TYPE_OUTPUT;
     let mut adr = AudioObjectPropertyAddress {
         mSelector: 0,
-        mScope: scope,
+        mScope: match devtype.bits() {
+            ffi::CUBEB_DEVICE_TYPE_INPUT => kAudioDevicePropertyScopeInput,
+            ffi::CUBEB_DEVICE_TYPE_OUTPUT => kAudioDevicePropertyScopeOutput,
+            GLOBAL => kAudioObjectPropertyScopeGlobal,
+            _ => panic!("Invalid type"),
+        },
         mElement: kAudioObjectPropertyElementMaster,
     };
     let mut size: usize = 0;
@@ -1739,7 +1743,7 @@ fn create_cubeb_device_info(
         &mut dev_info.default_rate,
     );
 
-    let latency = audiounit_get_device_presentation_latency(devid, adr.mScope);
+    let latency = audiounit_get_device_presentation_latency(devid, devtype);
 
     let (latency_low, latency_high) =
         if let Ok((min, max)) = get_device_buffer_frame_size_range(devid, devtype) {
@@ -2937,7 +2941,7 @@ impl<'ctx> CoreStreamData<'ctx> {
             stream.current_latency_frames.store(
                 audiounit_get_device_presentation_latency(
                     self.output_device.id,
-                    kAudioDevicePropertyScopeOutput,
+                    DeviceType::OUTPUT,
                 ),
                 Ordering::SeqCst,
             );
