@@ -7,9 +7,11 @@
 - Use `ErrorChain`
 - Centralize the error log in one place
 - Check scope for `audiounit_get_available_samplerate`
-- Refacotr the whole `audiounit_create_device_from_hwdev`
-    - Decouple the settings of `devid` and `device_id`
-    - Split the data retrieve into different functions
+- Create utils in device_property to replace:
+  - `audiounit_get_available_samplerate`
+  - `audiounit_get_device_presentation_latency`
+  - `audiounit_get_acceptable_latency_range`
+  - `audiounit_get_default_datasource`
 - Support `enumerate_devices` with in-out type?
 
 ### Generics
