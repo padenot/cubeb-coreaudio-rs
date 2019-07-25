@@ -519,7 +519,7 @@ impl AggregateDevice {
             let mut input_nominal_rate = 0;
             audiounit_get_available_samplerate(
                 input_id,
-                kAudioObjectPropertyScopeGlobal,
+                DeviceType::INPUT | DeviceType::OUTPUT,
                 &mut input_min_rate,
                 &mut input_max_rate,
                 &mut input_nominal_rate,
@@ -538,7 +538,7 @@ impl AggregateDevice {
             let mut output_nominal_rate = 0;
             audiounit_get_available_samplerate(
                 output_id,
-                kAudioObjectPropertyScopeGlobal,
+                DeviceType::INPUT | DeviceType::OUTPUT,
                 &mut output_min_rate,
                 &mut output_max_rate,
                 &mut output_nominal_rate,
